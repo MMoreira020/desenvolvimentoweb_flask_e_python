@@ -17,7 +17,7 @@ def teste():
 @app.route('/sobre')
 def pagina_sobre():
     return """
-        <b>MeuGitHub</b>: acesse os repositorios no
+        <b>MeuGitHub</b>: acesse meu repositorio no
         <a href="https://github.com/MMoreira020?tab=repositories">GitHub</a>
     """
 # execucao
