@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, redirect, session
+from flask import Flask, request, render_template, redirect, session, flash
 from flask_sqlalchemy import SQLAlchemy
 import bcrypt
 
@@ -36,11 +36,13 @@ def register():
         password = request.form['password']
 
         if User.query.filter_by(email=email).first():
-            return render_template('register.html', error="Email já registrado!")
+            flash("Email já registrado!", "danger")
+            return redirect('/register')
 
         new_user = User(name=name, email=email, password=password)
         db.session.add(new_user)
         db.session.commit()
+        flash("Conta criada com sucesso! Faça login.", "success")
         return redirect('/login')
 
     return render_template('register.html')
@@ -53,11 +55,16 @@ def login():
 
         user = User.query.filter_by(email=email).first()
         
-        if user and user.check_password(password):
-            session['email'] = user.email
-            return redirect('/dashboard')
+        if user:
+            if user.check_password(password):
+                session['email'] = user.email
+                return redirect('/dashboard')
+            else:
+                flash("Senha incorreta!", "danger")
         else:
-            return render_template('login.html', error='Email e senha não cadastrados')
+            flash("Email não cadastrado!", "danger")
+        
+        return redirect('/login')
 
     return render_template('login.html')
 
