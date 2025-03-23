@@ -55,14 +55,11 @@ def login():
 
         user = User.query.filter_by(email=email).first()
         
-        if user:
-            if user.check_password(password):
-                session['email'] = user.email
-                return redirect('/dashboard')
-            else:
-                flash("Senha incorreta!", "danger")
+        if user and user.check_password(password):
+            session['email'] = user.email
+            return redirect('/dashboard')
         else:
-            flash("Email não cadastrado!", "danger")
+            flash("Credenciais inválidas!", "danger")
         
         return redirect('/login')
 
