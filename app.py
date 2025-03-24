@@ -26,6 +26,10 @@ with app.app_context():
 
 @app.route('/')
 def index():
+    dados_sql = User.query.all()
+    
+    for usuario in dados_sql:
+        print(f'ID: {usuario.id}, Nome: {usuario.name}, Email: {usuario.email}, Senha: {usuario.password}')
     return render_template('index.html')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -43,6 +47,10 @@ def register():
         db.session.add(new_user)
         db.session.commit()
         flash("Conta criada com sucesso! Faça login.", "success")
+        dados_sql = User.query.all()
+    
+        for usuario in dados_sql:
+            print(f'ID: {usuario.id}, Nome: {usuario.name}, Email: {usuario.email}, Senha: {usuario.password}')
         return redirect('/login')
 
     return render_template('register.html')
