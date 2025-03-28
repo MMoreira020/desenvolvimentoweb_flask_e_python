@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-bs-theme="dark">
+<html lang="en" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,9 +11,10 @@
     <div class="container">
         <main class="form-container">
             <form id="registerForm" action="/register" method="POST" onsubmit="return validateForm()">
-                <h1 class="h3 mb-3 fw-normal">Crie sua conta</h1>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                
+                <h1 class="h3 mb-3 fw-normal">Criar Conta</h1>
 
-                <!-- Mensagens de erro do backend (opcional, pode remover se quiser apenas frontend) -->
                 {% with messages = get_flashed_messages(with_categories=true) %}
                     {% if messages %}
                         {% for category, message in messages %}
@@ -22,18 +23,17 @@
                     {% endif %}
                 {% endwith %}
 
-                <!-- Mensagens de erro do frontend -->
                 <div id="nameError" class="alert alert-danger d-none"></div>
-                <input type="text" name="name" id="name" class="form-control mb-2" placeholder="Nome" required>
+                <input type="text" name="name" id="name" class="form-control mb-2" placeholder="Name" required>
 
                 <div id="emailError" class="alert alert-danger d-none"></div>
                 <input type="email" name="email" id="email" class="form-control mb-2" placeholder="Email" required>
 
                 <div id="passwordError" class="alert alert-danger d-none"></div>
-                <input type="password" name="password" id="password" class="form-control mb-2" placeholder="Senha" required>
+                <input type="password" name="password" id="password" class="form-control mb-2" placeholder="Password" required>
 
                 <button type="submit" class="btn btn-primary w-100">Registrar</button>
-                <a href="/login" class="btn btn-link">Já tem uma conta? Faça login</a>
+                <a href="/login" class="btn btn-link">Já tem uma conta ? Faça login</a>
             </form>
         </main>
     </div>
@@ -47,36 +47,39 @@
             const emailError = document.getElementById('emailError');
             const passwordError = document.getElementById('passwordError');
 
-            // Resetar mensagens de erro
             nameError.classList.add('d-none');
             emailError.classList.add('d-none');
             passwordError.classList.add('d-none');
 
             let isValid = true;
 
-            // Validar nome
             if (!name) {
-                nameError.textContent = 'Por favor, insira seu nome.';
+                nameError.textContent = 'Please enter your name.';
                 nameError.classList.remove('d-none');
                 isValid = false;
             }
 
-            // Validar email
             if (!email || !email.includes('@')) {
-                emailError.textContent = 'Por favor, insira um email válido.';
+                emailError.textContent = 'Insira um e-mail válido.';
                 emailError.classList.remove('d-none');
                 isValid = false;
             }
 
-            // Validar senha
             if (!password || password.length < 6) {
                 passwordError.textContent = 'A senha deve ter pelo menos 6 caracteres.';
                 passwordError.classList.remove('d-none');
                 isValid = false;
             }
 
-            return isValid; // Enviar o formulário se tudo estiver válido
+            return isValid;
         }
+
+        // Atualiza o Token CSRF
+        fetch('/get-csrf-token')
+            .then(response => response.json())
+            .then(data => {
+                document.querySelector('input[name="csrf_token"]').value = data.csrf_token;
+            });
     </script>
 </body>
 </html>

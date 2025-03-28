@@ -11,9 +11,10 @@
 <body class="d-flex align-items-center justify-content-center vh-100" style="background-color: #222;">
     <main class="form-container">
         <form id="loginForm" action="/login" method="POST" onsubmit="return validateForm()">
-            <h1 class="h3 mb-3 fw-normal text-center">Faça login</h1>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            
+            <h1 class="h3 mb-3 fw-normal text-center">Login</h1>
         
-            <!-- Mensagens de erro do backend (opcional, pode remover se quiser apenas frontend) -->
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}
@@ -26,14 +27,14 @@
             <input type="email" name="email" id="email" class="form-control mb-2" placeholder="Email" required>
         
             <div id="passwordError" class="alert alert-danger d-none"></div>
-            <input type="password" name="password" id="password" class="form-control mb-2" placeholder="Senha" required>
+            <input type="password" name="password" id="password" class="form-control mb-2" placeholder="Password" required>
         
             <div class="form-check mb-2">
                 <input type="checkbox" class="form-check-input" id="rememberMe" name="remember_me">
                 <label class="form-check-label" for="rememberMe">Remember me</label>
             </div>
         
-            <button type="submit" class="btn btn-primary w-100">Entrar</button>
+            <button type="submit" class="btn btn-primary w-100">Login</button>
             <a href="/register" class="btn btn-link d-block text-center mt-2">Não tem uma conta? Registre-se</a>
         </form>
     </main>
@@ -45,26 +46,30 @@
             const emailError = document.getElementById('emailError');
             const passwordError = document.getElementById('passwordError');
 
-            // Resetar mensagens de erro
             emailError.classList.add('d-none');
             passwordError.classList.add('d-none');
 
-            // Validar email
             if (!email || !email.includes('@')) {
-                emailError.textContent = 'Por favor, insira um email válido.';
+                emailError.textContent = 'Insira um e-mail válido.';
                 emailError.classList.remove('d-none');
                 return false;
             }
 
-            // Validar senha
             if (!password) {
-                passwordError.textContent = 'Por favor, insira sua senha.';
+                passwordError.textContent = 'Digite sua senha.';
                 passwordError.classList.remove('d-none');
                 return false;
             }
 
-            return true; // Enviar o formulário se tudo estiver válido
+            return true;
         }
+
+        // Atualiza o Token CSRF
+        fetch('/get-csrf-token')
+            .then(response => response.json())
+            .then(data => {
+                document.querySelector('input[name="csrf_token"]').value = data.csrf_token;
+            });
     </script>
 </body>
 </html>

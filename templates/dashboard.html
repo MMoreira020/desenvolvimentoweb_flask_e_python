@@ -9,9 +9,27 @@
 <body class="d-flex align-items-center justify-content-center vh-100 bg-body-tertiary">
     <main class="form-container">
         <h2>Dashboard</h2>
-        <p><b>Nome:</b> {{ user.name }}</p>
+        <p><b>Name:</b> {{ user.name }}</p>
         <p><b>Email:</b> {{ user.email }}</p>
-        <a href="/logout" class="btn btn-danger">Sair</a>
+        <form action="/logout" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <button type="submit" class="btn btn-danger">Logout</button>
+        </form>
     </main>
+
+    <script>
+        // Verifica se o Token está atualizando antes do logout
+        document.querySelector('form').addEventListener('submit', function(e) {
+            if (!document.querySelector('input[name="csrf_token"]').value) {
+                e.preventDefault();
+                fetch('/get-csrf-token')
+                    .then(response => response.json())
+                    .then(data => {
+                        document.querySelector('input[name="csrf_token"]').value = data.csrf_token;
+                        this.submit();
+                    });
+            }
+        });
+    </script>
 </body>
 </html>
