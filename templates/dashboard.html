@@ -17,19 +17,7 @@
         </form>
     </main>
 
-    <script>
-        // Verifica se o Token está atualizando antes do logout
-        document.querySelector('form').addEventListener('submit', function(e) {
-            if (!document.querySelector('input[name="csrf_token"]').value) {
-                e.preventDefault();
-                fetch('/get-csrf-token')
-                    .then(response => response.json())
-                    .then(data => {
-                        document.querySelector('input[name="csrf_token"]').value = data.csrf_token;
-                        this.submit();
-                    });
-            }
-        });
-    </script>
+    <script src="{{ url_for('js', filename='dashboard.js') }}"></script>
+
 </body>
 </html>
