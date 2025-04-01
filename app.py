@@ -46,6 +46,15 @@ class User(db.Model):
 
     def check_password(self, password):
         return bcrypt.checkpw(password.encode('utf-8'), self.password.encode('utf-8'))
+    
+class Token(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    token = db.Column(db.Text, nullable=False)
+
+    def __init__(self, usuario_id, token):
+        self.usuario_id = usuario_id
+        self.token = token
 
 
 with app.app_context():
@@ -96,6 +105,13 @@ def login():
         if user and user.check_password(password):
             access_token = create_access_token(identity=user.email)
             refresh_token = create_refresh_token(identity=user.email)
+
+            token_db = Token(usuario_id=user.id, token=refresh_token)
+            db.session.add(token_db)
+            db.session.commit()
+
+            print(f"\n=== TOKEN SALVO NO BANCO ===\nUsuário: {user.email}\nToken: {access_token}\n")
+
             
             response = redirect('/dashboard')
             set_access_cookies(response, access_token)
@@ -127,11 +143,21 @@ def dashboard():
     return render_template('dashboard.html', user=user)
 
 @app.route('/logout', methods=['POST'])
+@jwt_required()
 def logout():
-    response = redirect('/login')
-    unset_jwt_cookies(response)
+    response = redirect('/login')  
+    unset_jwt_cookies(response)  
     flash("Você foi deslogado com sucesso.", "success")
     return response
+
+
+@app.route('/tokens', methods=['GET'])
+@jwt_required()
+def list_tokens():
+    tokens = Token.query.all()
+    return jsonify([{'id': t.id, 'usuario_id': t.usuario_id, 'token': t.token} for t in tokens])
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
